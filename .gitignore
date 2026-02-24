@@ -1,7 +1,6 @@
 # .NET
 bin/
 obj/
-packages/
 *.user
 *.suo
 *.vs/
@@ -12,8 +11,7 @@ packages/
 *.nupkg
 project.lock.json
 
-# Angular / Node
-node_modules/
+# Angular
 dist/
 .angular/
 npm-debug.log
@@ -30,4 +28,3 @@ Desktop.ini
 
 # Temp
 *.tmp
-*.log
