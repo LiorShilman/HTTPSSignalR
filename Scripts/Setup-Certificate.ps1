@@ -107,6 +107,25 @@ Import-Certificate -FilePath $tempCertPath -CertStoreLocation "Cert:\LocalMachin
 # Clean up temp file
 Remove-Item -Path $tempCertPath -Force -ErrorAction SilentlyContinue
 
+# Export certificate files for distribution to client machines
+$scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
+$cerFilePath = Join-Path $scriptDir "NMS-SignalR-Certificate.cer"
+$pfxFilePath = Join-Path $scriptDir "NMS-SignalR-Certificate.pfx"
+
+# Export public key (.cer) - for clients that just need to trust the server
+Export-Certificate -Cert "Cert:\LocalMachine\My\$thumbprint" -FilePath $cerFilePath -Force | Out-Null
+Write-Host "  Exported .cer (public key) -> $cerFilePath" -ForegroundColor Cyan
+
+# Export with private key (.pfx) - for backup or moving to another server
+$pfxPassword = Read-Host -Prompt "  Enter password for .pfx export (or press Enter to skip)" -AsSecureString
+if ($pfxPassword.Length -gt 0) {
+    Export-PfxCertificate -Cert "Cert:\LocalMachine\My\$thumbprint" -FilePath $pfxFilePath -Password $pfxPassword -Force | Out-Null
+    Write-Host "  Exported .pfx (with private key) -> $pfxFilePath" -ForegroundColor Cyan
+}
+else {
+    Write-Host "  Skipped .pfx export (no password provided)." -ForegroundColor DarkYellow
+}
+
 Write-Host "  Certificate added to Trusted Root CA store." -ForegroundColor Green
 Write-Host "  NOTE: Client machines also need this certificate in their Trusted Root store." -ForegroundColor DarkYellow
 
@@ -255,12 +274,18 @@ Write-Host "    2. If WebSockets available, upgrades to WSS (wss://${IPAddress}:
 Write-Host "    3. Fallback: Server-Sent Events -> Long Polling (all over HTTPS)" -ForegroundColor Gray
 Write-Host ""
 Write-Host "  IMPORTANT - For client machines:" -ForegroundColor Yellow
-Write-Host "    Export the certificate and install it in the client's" -ForegroundColor Yellow
-Write-Host "    Trusted Root Certification Authorities store, or the" -ForegroundColor Yellow
-Write-Host "    browser will show security warnings." -ForegroundColor Yellow
+Write-Host "    Install the .cer file in the client's Trusted Root" -ForegroundColor Yellow
+Write-Host "    Certification Authorities store, or the browser will" -ForegroundColor Yellow
+Write-Host "    show security warnings." -ForegroundColor Yellow
 Write-Host ""
-Write-Host "  To export the certificate for distribution:" -ForegroundColor Gray
-Write-Host "    Export-Certificate -Cert 'Cert:\LocalMachine\My\$thumbprint' -FilePath 'C:\nms-cert.cer'" -ForegroundColor Gray
+Write-Host "  Exported certificate files (in Scripts/ folder):" -ForegroundColor White
+Write-Host "    .cer file: $cerFilePath" -ForegroundColor Gray
+Write-Host "      -> Give this to clients. Install via:" -ForegroundColor Gray
+Write-Host "         certutil -addstore Root `"$cerFilePath`"" -ForegroundColor Gray
+if (Test-Path $pfxFilePath) {
+    Write-Host "    .pfx file: $pfxFilePath" -ForegroundColor Gray
+    Write-Host "      -> Contains private key. Use to move cert to another server." -ForegroundColor Gray
+}
 Write-Host ""
 
 # ============================================================
