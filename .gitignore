@@ -1,0 +1,33 @@
+# .NET
+bin/
+obj/
+packages/
+*.user
+*.suo
+*.vs/
+.vs/
+*.DotSettings.user
+
+# NuGet
+*.nupkg
+project.lock.json
+
+# Angular / Node
+node_modules/
+dist/
+.angular/
+npm-debug.log
+yarn-error.log
+
+# IDE
+.idea/
+.vscode/
+
+# OS
+Thumbs.db
+Desktop.ini
+.DS_Store
+
+# Temp
+*.tmp
+*.log

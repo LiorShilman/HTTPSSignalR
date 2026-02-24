@@ -1,0 +1,99 @@
+<Window x:Class="SignalRServer.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="NMS SignalR Server" Height="600" Width="800"
+        WindowStartupLocation="CenterScreen"
+        Background="#1E1E1E">
+    <Grid Margin="15">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="280"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Title + Status -->
+        <StackPanel Grid.Row="0" Grid.ColumnSpan="2" Orientation="Horizontal" Margin="0,0,0,10">
+            <Ellipse x:Name="StatusIndicator" Width="18" Height="18" Fill="#E74C3C"
+                     VerticalAlignment="Center" Margin="0,0,10,0"/>
+            <TextBlock x:Name="StatusText" Text="Server Stopped"
+                       FontSize="18" FontWeight="Bold" Foreground="White"
+                       VerticalAlignment="Center"/>
+        </StackPanel>
+
+        <!-- Server Info -->
+        <StackPanel Grid.Row="1" Grid.ColumnSpan="2" Margin="0,0,0,10">
+            <TextBlock Text="URL: https://+:20201/signalr  |  Transports: WSS, SSE, Long Polling"
+                       Foreground="#888" FontFamily="Consolas" FontSize="12"/>
+            <StackPanel Orientation="Horizontal" Margin="0,3,0,0">
+                <TextBlock Text="KeepAlive: 5s" Foreground="#666" FontSize="11" Margin="0,0,15,0"/>
+                <TextBlock Text="DisconnectTimeout: 15s" Foreground="#666" FontSize="11" Margin="0,0,15,0"/>
+                <TextBlock Text="Heartbeat: 10s" Foreground="#666" FontSize="11"/>
+            </StackPanel>
+        </StackPanel>
+
+        <!-- Controls -->
+        <StackPanel Grid.Row="2" Grid.ColumnSpan="2" Orientation="Horizontal" Margin="0,0,0,10">
+            <Button x:Name="BtnStartStop" Content="Start Server"
+                    Width="130" Height="35" FontSize="14" FontWeight="SemiBold"
+                    Background="#2ECC71" Foreground="White" BorderThickness="0"
+                    Cursor="Hand" Click="BtnStartStop_Click"/>
+            <TextBlock x:Name="ClientCount" Text="Connected Clients: 0"
+                       Foreground="#3498DB" FontSize="14" FontWeight="SemiBold"
+                       VerticalAlignment="Center" Margin="20,0,0,0"/>
+            <Button x:Name="BtnClearLog" Content="Clear Log"
+                    Width="90" Height="35" FontSize="12"
+                    Background="#555" Foreground="White" BorderThickness="0"
+                    Cursor="Hand" Click="BtnClearLog_Click" Margin="20,0,0,0"/>
+        </StackPanel>
+
+        <!-- Separator -->
+        <Border Grid.Row="3" Grid.ColumnSpan="2" BorderBrush="#333" BorderThickness="0,1,0,0" Margin="0,0,0,10"/>
+
+        <!-- Log Panel (left) -->
+        <Grid Grid.Row="4" Grid.Column="0" Margin="0,0,10,0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <TextBlock Grid.Row="0" Text="Event Log" Foreground="#888" FontSize="12" FontWeight="SemiBold" Margin="0,0,0,5"/>
+            <TextBox Grid.Row="1" x:Name="LogBox"
+                     IsReadOnly="True" TextWrapping="Wrap"
+                     VerticalScrollBarVisibility="Auto"
+                     FontFamily="Consolas" FontSize="11"
+                     Background="#111" Foreground="#0F0"
+                     BorderBrush="#333" Padding="8"/>
+        </Grid>
+
+        <!-- Client List (right) -->
+        <Grid Grid.Row="4" Grid.Column="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <TextBlock Grid.Row="0" Text="Connected Clients" Foreground="#888" FontSize="12" FontWeight="SemiBold" Margin="0,0,0,5"/>
+            <ListBox Grid.Row="1" x:Name="ClientListBox"
+                     Background="#111" Foreground="#CCC" BorderBrush="#333"
+                     FontFamily="Consolas" FontSize="11">
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <StackPanel Margin="2">
+                            <TextBlock Text="{Binding ClientName}" Foreground="#3498DB" FontWeight="SemiBold" FontSize="12"/>
+                            <TextBlock Foreground="#888" FontSize="10">
+                                <Run Text="{Binding Transport, Mode=OneWay}"/>
+                                <Run Text=" | "/>
+                                <Run Text="{Binding ConnectedAt, StringFormat=HH:mm:ss, Mode=OneWay}"/>
+                            </TextBlock>
+                            <TextBlock Text="{Binding ConnectionId}" Foreground="#555" FontSize="9"/>
+                        </StackPanel>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+        </Grid>
+    </Grid>
+</Window>

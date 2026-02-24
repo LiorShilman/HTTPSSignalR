@@ -1,0 +1,103 @@
+<div class="container">
+  <h1 class="title">NMS Client</h1>
+  <p class="subtitle">SignalR Connection Monitor</p>
+
+  <!-- Connection Status Panel -->
+  <div class="status-panel" [ngClass]="getStateClass()">
+    <div class="status-indicator">
+      <span class="status-dot"></span>
+    </div>
+    <div class="status-info">
+      <span class="status-label">Connection Status</span>
+      <span class="status-value">{{ connectionState }}</span>
+    </div>
+    <div class="status-latency" *ngIf="connectionState === 'Connected'">
+      <span class="latency-value">{{ stats.latencyMs }}ms</span>
+      <span class="latency-label">latency</span>
+    </div>
+  </div>
+
+  <!-- Stats Grid -->
+  <div class="stats-grid">
+    <div class="stat-card">
+      <span class="stat-label">Transport</span>
+      <span class="stat-value">{{ stats.transport }}</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-label">Connection ID</span>
+      <span class="stat-value stat-mono">{{ stats.connectionId }}</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-label">Connected At</span>
+      <span class="stat-value">{{ formatTime(stats.connectedAt) }}</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-label">Last Heartbeat</span>
+      <span class="stat-value">{{ formatTime(stats.lastHeartbeat) }}</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-label">Reconnects</span>
+      <span class="stat-value">{{ stats.reconnectCount }}</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-label">Heartbeats</span>
+      <span class="stat-value">{{ stats.heartbeatCount }}</span>
+    </div>
+  </div>
+
+  <!-- Controls -->
+  <div class="controls">
+    <button class="btn btn-connect"
+            (click)="connect()"
+            [disabled]="connectionState === 'Connected' || connectionState === 'Connecting'">
+      Connect
+    </button>
+    <button class="btn btn-disconnect"
+            (click)="disconnect()"
+            [disabled]="connectionState === 'Disconnected'">
+      Disconnect
+    </button>
+    <button class="btn btn-ping"
+            (click)="ping()"
+            [disabled]="connectionState !== 'Connected'">
+      Ping
+    </button>
+    <button class="btn btn-info"
+            (click)="getClients()"
+            [disabled]="connectionState !== 'Connected'">
+      Clients
+    </button>
+    <button class="btn btn-info"
+            (click)="getServerStatus()"
+            [disabled]="connectionState !== 'Connected'">
+      Status
+    </button>
+  </div>
+
+  <!-- Message Input -->
+  <div class="message-input" *ngIf="connectionState === 'Connected'">
+    <input type="text"
+           [(ngModel)]="messageInput"
+           (keyup.enter)="sendMessage()"
+           placeholder="Send a message..."
+           class="input-field"/>
+    <button class="btn btn-send" (click)="sendMessage()">Send</button>
+  </div>
+
+  <!-- Log Panel -->
+  <div class="log-panel">
+    <div class="log-header">
+      <span>Event Log</span>
+      <span class="log-count">{{ messages.length }} events</span>
+    </div>
+    <div class="log-content" #logPanel>
+      <div *ngFor="let msg of messages; trackBy: trackByIndex" class="log-entry"
+           [ngClass]="{
+             'log-error': msg.includes('FAILED') || msg.includes('error') || msg.includes('Error'),
+             'log-success': msg.includes('Connected!') || msg.includes('Reconnected!') || msg.includes('Pong!'),
+             'log-warning': msg.includes('reconnect') || msg.includes('Reconnecting') || msg.includes('Disconnected')
+           }">{{ msg }}</div>
+      <div *ngIf="messages.length === 0" class="log-empty">No events yet...</div>
+    </div>
+  </div>
+</div>
